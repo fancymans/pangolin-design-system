@@ -1,0 +1,679 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Brand Design System</title>
+<!-- BRAND: swap these fonts for the brand's typeface (Google Fonts only; anything else needs a fallback note in DS_BRAND.fontNote) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+
+<!-- Product tokens. Generated at runtime from DS_PRIMITIVES, DS_SEMANTIC and DS_SCALES. Do not hand edit. -->
+<style id="ds-tokens"></style>
+
+<!-- Product components. Every value is a token (var(--ds-*)). No raw hex here. -->
+<style id="ds-comp">
+.ds { font: var(--ds-type-body); color: var(--ds-text-primary); -webkit-font-smoothing: antialiased; }
+.ds *, .ds *::before, .ds *::after { box-sizing: border-box; }
+.ds svg.i { width: 16px; height: 16px; flex: none; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+/* Button */
+.ds-btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--ds-space-8); border: 1px solid transparent; border-radius: var(--ds-radius-md); font: var(--ds-type-body-sm); font-weight: 500; white-space: nowrap; cursor: pointer; transition: background-color .12s, border-color .12s; }
+.ds-btn:focus-visible { outline: 2px solid var(--ds-border-focus); outline-offset: 2px; }
+.ds-btn--s { height: 28px; padding: 0 var(--ds-space-8); border-radius: var(--ds-radius-sm); }
+.ds-btn--m { height: 36px; padding: 0 var(--ds-space-12); }
+.ds-btn--l { height: 44px; padding: 0 var(--ds-space-16); font: var(--ds-type-body); font-weight: 500; }
+.ds-btn--icon.ds-btn--s { width: 28px; padding: 0; }
+.ds-btn--icon.ds-btn--m { width: 36px; padding: 0; }
+.ds-btn--icon.ds-btn--l { width: 44px; padding: 0; }
+.ds-btn--primary { background: var(--ds-bg-accent); color: var(--ds-text-inverse); }
+.ds-btn--primary:not(:disabled):hover, .ds-btn--primary.is-hover { background: var(--ds-bg-accent-hover); }
+.ds-btn--secondary { background: var(--ds-bg-primary); border-color: var(--ds-border-strong); color: var(--ds-text-primary); }
+.ds-btn--tertiary { background: transparent; color: var(--ds-text-primary); }
+.ds-btn--secondary:not(:disabled):hover, .ds-btn--secondary.is-hover,
+.ds-btn--tertiary:not(:disabled):hover, .ds-btn--tertiary.is-hover { background: var(--ds-bg-hover); }
+.ds-btn--destructive { background: var(--ds-bg-negative-strong); color: var(--ds-text-inverse); }
+.ds-btn--destructive:not(:disabled):hover, .ds-btn--destructive.is-hover { filter: brightness(.92); }
+.ds-btn:disabled { cursor: not-allowed; background: var(--ds-bg-disabled); border-color: transparent; color: var(--ds-text-disabled); }
+
+/* Text field */
+.ds-field { display: grid; gap: var(--ds-space-4); width: 280px; }
+.ds-field__label { font: var(--ds-type-body-sm); font-weight: 500; }
+.ds-field__input { height: 36px; padding: 0 var(--ds-space-12); border: 1px solid var(--ds-border-strong); border-radius: var(--ds-radius-md); background: var(--ds-bg-primary); color: var(--ds-text-primary); font: var(--ds-type-body); }
+.ds-field__input::placeholder { color: var(--ds-text-tertiary); }
+.ds-field__input:focus, .ds-field.is-focus .ds-field__input { outline: none; border-color: var(--ds-border-focus); box-shadow: 0 0 0 3px var(--ds-bg-accent-subtle); }
+.ds-field__input:disabled { background: var(--ds-bg-disabled); color: var(--ds-text-disabled); cursor: not-allowed; }
+.ds-field__help { margin: 0; font: var(--ds-type-caption); color: var(--ds-text-secondary); }
+.ds-field.is-error .ds-field__input { border-color: var(--ds-border-negative); }
+.ds-field.is-error .ds-field__help { color: var(--ds-text-negative); }
+
+/* Switch */
+.ds-switch { position: relative; display: inline-flex; align-items: center; gap: var(--ds-space-8); font: var(--ds-type-body-sm); cursor: pointer; }
+.ds-switch input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.ds-switch__track { position: relative; width: 32px; height: 18px; flex: none; border-radius: var(--ds-radius-full); background: var(--ds-border-strong); transition: background-color .15s; }
+.ds-switch__thumb { position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: var(--ds-radius-full); background: var(--ds-bg-primary); box-shadow: var(--ds-shadow-raised); transition: transform .15s; }
+.ds-switch:hover .ds-switch__track, .ds-switch.is-hover .ds-switch__track { background: var(--ds-text-tertiary); }
+.ds-switch input:checked + .ds-switch__track { background: var(--ds-bg-accent); }
+.ds-switch input:checked + .ds-switch__track .ds-switch__thumb { transform: translateX(14px); }
+.ds-switch input:focus-visible + .ds-switch__track { outline: 2px solid var(--ds-border-focus); outline-offset: 2px; }
+.ds-switch input:disabled + .ds-switch__track { opacity: .45; }
+.ds-switch:has(input:disabled) { cursor: not-allowed; color: var(--ds-text-disabled); }
+</style>
+
+<!-- Docs site chrome. Separate from product tokens on purpose. Never uses the ds- prefix. -->
+<style>
+:root {
+  --bg: #ffffff; --panel: #f8f8f9; --fg: #1c1d21; --muted: #6b6e76; --line: #e7e8eb; --line-strong: #d6d8dd;
+  --accent: #2c5fd9; --accent-soft: #eef2fc; --hover: #f0f1f3; --code-bg: #f8f8f9; --code-fg: #1c1d21;
+  --t-tag: #2c5fd9; --t-attr: #8a4fbf; --t-str: #1f7a4d; --t-com: #8b8e96;
+  --canvas: #ffffff; --canvas-dot: #e3e4e8;
+  --ui: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif; --mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  --side: 264px; --top: 56px;
+  color-scheme: light; box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #131417; --panel: #1a1b1f; --fg: #ececee; --muted: #9a9ca3; --line: #2a2c31; --line-strong: #3a3c42;
+  --accent: #8aaaf5; --accent-soft: #1d2741; --hover: #24262b; --code-bg: #1a1b1f; --code-fg: #e6e7ea;
+  --t-tag: #8aaaf5; --t-attr: #c9a0f0; --t-str: #8fd1a8; --t-com: #7d8088; --canvas-dot: #dcdde1; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #131417; --panel: #1a1b1f; --fg: #ececee; --muted: #9a9ca3; --line: #2a2c31; --line-strong: #3a3c42;
+  --accent: #8aaaf5; --accent-soft: #1d2741; --hover: #24262b; --code-bg: #1a1b1f; --code-fg: #e6e7ea;
+  --t-tag: #8aaaf5; --t-attr: #c9a0f0; --t-str: #8fd1a8; --t-com: #7d8088; --canvas-dot: #dcdde1; color-scheme: dark; }
+*, *::before, *::after { box-sizing: inherit; }
+html { scroll-padding-top: calc(var(--top) + env(safe-area-inset-top, 0px)); }
+body { margin: 0; background: var(--bg); color: var(--fg); font: 400 15px/1.55 var(--ui); -webkit-font-smoothing: antialiased; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 30; background: var(--bg); }
+a { color: var(--accent); }
+code, pre { font-family: var(--mono); }
+code { font-size: .86em; }
+img { max-width: 100%; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+button { font: inherit; }
+
+.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; display: flex; align-items: center; gap: 12px; height: var(--top); padding-inline: 20px; background: var(--bg); border-bottom: 1px solid var(--line); }
+.brand { display: flex; align-items: center; gap: 10px; color: var(--fg); text-decoration: none; font-weight: 600; white-space: nowrap; }
+.brand .mark { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 7px; font-weight: 700; font-size: 14px; }
+.brand small { font-weight: 400; color: var(--muted); }
+.search { position: relative; flex: 1; max-width: 340px; margin-left: auto; }
+.search input { width: 100%; height: 34px; padding: 0 34px 0 12px; border: 1px solid var(--line-strong); border-radius: 8px; background: var(--panel); color: var(--fg); font: inherit; font-size: 14px; }
+.search kbd { position: absolute; right: 8px; top: 7px; padding: 0 5px; border: 1px solid var(--line-strong); border-radius: 4px; font: 12px var(--mono); color: var(--muted); }
+.tbtn { display: inline-flex; align-items: center; gap: 6px; height: 34px; padding: 0 12px; border: 1px solid var(--line-strong); border-radius: 8px; background: transparent; color: var(--fg); font-size: 14px; text-decoration: none; white-space: nowrap; cursor: pointer; }
+.tbtn:hover { background: var(--hover); }
+.tbtn svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+#nav-toggle { display: none; }
+
+.layout { display: grid; grid-template-columns: var(--side) minmax(0, 1fr); }
+.side { position: sticky; top: calc(var(--top) + env(safe-area-inset-top, 0px)); height: calc(100dvh - var(--top) - env(safe-area-inset-top, 0px)); overflow-y: auto; padding: 16px 12px 40px; background: var(--panel); border-right: 1px solid var(--line); }
+.nav-group { margin-bottom: 18px; }
+.nav-h { padding: 0 10px 6px; font-size: 11px; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); }
+#nav a { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 5px 10px; border-radius: 6px; font-size: 14px; color: var(--fg); text-decoration: none; }
+#nav a:hover { background: var(--hover); }
+#nav a[aria-current="page"] { background: var(--accent-soft); color: var(--accent); font-weight: 500; }
+.nav-empty { padding: 8px 10px; color: var(--muted); font-size: 14px; }
+
+main { min-width: 0; padding: 40px clamp(20px, 5vw, 64px) 80px; max-width: 1080px; outline: none; }
+h1 { margin: 0 0 8px; font-size: 32px; line-height: 1.2; letter-spacing: -.01em; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+h2 { margin: 0 0 14px; font-size: 20px; letter-spacing: -.005em; }
+h3.sub { margin: 24px 0 10px; font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+.eyebrow { margin: 0 0 6px; font-size: 13px; font-weight: 500; color: var(--muted); }
+.lede { margin: 0; font-size: 17px; color: var(--muted); max-width: 680px; }
+.meta { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 12px; font-size: 13px; color: var(--muted); }
+.sec { margin-top: 44px; }
+.muted { color: var(--muted); }
+.page-head { margin-bottom: 8px; }
+
+.badge { display: inline-flex; align-items: center; height: 22px; padding: 0 8px; border-radius: 999px; font: 500 12px var(--ui); letter-spacing: 0; vertical-align: middle; }
+.b-new { background: #e3f5ea; color: #1f7a4d; }
+.b-beta, .b-tbd { background: #fdf2dc; color: #8a5a00; }
+.b-deprecated { background: #fbe7e7; color: #a12a2a; }
+
+.steps, .notes { margin: 0; padding-left: 20px; max-width: 720px; }
+.steps li, .notes li { margin-bottom: 10px; }
+.grid-links { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+.grid-links a { display: block; padding: 16px; border: 1px solid var(--line); border-radius: 10px; color: var(--fg); text-decoration: none; }
+.grid-links a:hover { border-color: var(--line-strong); background: var(--panel); }
+.grid-links strong { display: block; margin-bottom: 4px; }
+.grid-links span { font-size: 13px; color: var(--muted); }
+
+.tbl-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; }
+.tbl { width: 100%; border-collapse: collapse; font-size: 14px; }
+.tbl th { text-align: left; font-weight: 500; font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); background: var(--panel); }
+.tbl th, .tbl td { padding: 10px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.tbl tr:last-child td { border-bottom: 0; }
+.tok { display: inline-flex; align-items: center; gap: 6px; padding: 1px 6px; border: 1px solid var(--line); border-radius: 5px; background: var(--panel); white-space: nowrap; }
+.tok i, .sw { display: inline-block; width: 12px; height: 12px; border-radius: 3px; box-shadow: inset 0 0 0 1px rgb(0 0 0 / .12); }
+.sw { width: 28px; height: 28px; border-radius: 6px; vertical-align: middle; }
+
+.ramp { display: grid; grid-template-columns: repeat(auto-fit, minmax(64px, 1fr)); border-radius: 10px; overflow: hidden; border: 1px solid var(--line); margin-bottom: 18px; }
+.ramp button { all: unset; cursor: pointer; padding: 36px 8px 8px; font: 11px/1.3 var(--mono); }
+.ramp button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.ramp-h { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 14px; font-weight: 500; }
+
+.scale-row { display: grid; grid-template-columns: 120px 1fr; align-items: center; gap: 16px; padding: 8px 0; border-bottom: 1px solid var(--line); }
+.scale-row code { color: var(--muted); }
+.bar { height: 14px; border-radius: 3px; background: var(--accent); }
+.tiles { display: flex; flex-wrap: wrap; gap: 16px; }
+.tile { display: grid; place-items: center; width: 120px; height: 88px; border: 1px solid var(--line-strong); background: var(--canvas); color: #1c1d21; font: 12px var(--mono); }
+
+.icon-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 8px; }
+.icon-grid button { display: grid; justify-items: center; gap: 8px; padding: 16px 8px; border: 1px solid var(--line); border-radius: 10px; background: transparent; color: var(--fg); font: 12px var(--mono); cursor: pointer; }
+.icon-grid button:hover { background: var(--panel); }
+.icon-grid svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+.logo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+.logo-grid figure { margin: 0; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.logo-grid .lg { display: grid; place-items: center; height: 140px; }
+.logo-grid figcaption { padding: 10px 12px; font-size: 13px; color: var(--muted); border-top: 1px solid var(--line); }
+
+.pg { display: grid; grid-template-columns: minmax(0, 1fr) 240px; border: 1px solid var(--line); border-radius: 12px 12px 0 0; overflow: hidden; }
+.canvas { display: grid; place-items: center; min-height: 240px; padding: 40px 24px; overflow-x: auto; background-color: var(--canvas); background-image: radial-gradient(var(--canvas-dot) 1px, transparent 1px); background-size: 16px 16px; color-scheme: light; }
+.controls { padding: 14px 16px 18px; border-left: 1px solid var(--line); background: var(--panel); display: grid; align-content: start; gap: 6px; font-size: 13px; }
+.ctl-h { font-size: 11px; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+.controls label { color: var(--muted); margin-top: 6px; }
+.controls select, .controls input[type="text"] { width: 100%; height: 32px; padding: 0 8px; border: 1px solid var(--line-strong); border-radius: 6px; background: var(--bg); color: var(--fg); font: inherit; }
+.controls .ctl-bool { display: flex; align-items: center; gap: 8px; color: var(--fg); }
+.code-wrap { border: 1px solid var(--line); border-top: 0; border-radius: 0 0 12px 12px; overflow: hidden; }
+.tabs { display: flex; align-items: center; gap: 2px; padding: 6px 8px; background: var(--panel); border-bottom: 1px solid var(--line); }
+.tabs button { height: 28px; padding: 0 10px; border: 0; border-radius: 6px; background: transparent; color: var(--muted); font-size: 13px; cursor: pointer; }
+.tabs button[aria-selected="true"] { background: var(--bg); color: var(--fg); box-shadow: 0 0 0 1px var(--line); }
+.tabs .spacer { flex: 1; }
+pre.code { margin: 0; padding: 16px 18px; max-height: 420px; overflow: auto; background: var(--code-bg); color: var(--code-fg); font-size: 13px; line-height: 1.6; tab-size: 2; }
+.t-tag { color: var(--t-tag); } .t-attr { color: var(--t-attr); } .t-str { color: var(--t-str); } .t-com { color: var(--t-com); font-style: italic; }
+
+.gallery { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; padding: 28px; border: 1px solid var(--line); border-radius: 12px; background-color: var(--canvas); background-image: radial-gradient(var(--canvas-dot) 1px, transparent 1px); background-size: 16px 16px; color-scheme: light; }
+.usage { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+.usage > div { padding: 16px 18px; border: 1px solid var(--line); border-radius: 10px; }
+.usage h3 { margin: 0 0 8px; font-size: 14px; }
+.usage ul { margin: 0; padding-left: 18px; }
+.usage li { margin-bottom: 6px; }
+.usage .do h3 { color: #1f7a4d; } .usage .dont h3 { color: #a12a2a; }
+.fig-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+.fig { margin: 0; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.fig img { display: block; width: 100%; background: #fff; }
+.fig figcaption { display: flex; justify-content: space-between; padding: 8px 12px; font-size: 13px; color: var(--muted); border-top: 1px solid var(--line); }
+
+.pager { display: flex; justify-content: space-between; gap: 12px; margin-top: 56px; padding-top: 20px; border-top: 1px solid var(--line); }
+.pager a { display: grid; padding: 12px 16px; border: 1px solid var(--line); border-radius: 10px; color: var(--fg); text-decoration: none; min-width: 180px; }
+.pager a:hover { background: var(--panel); }
+.pager small { color: var(--muted); }
+.pager .next { margin-left: auto; text-align: right; }
+
+.toast { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); transform: translate(-50%, 20px); padding: 8px 14px; border-radius: 8px; background: var(--fg); color: var(--bg); font-size: 13px; opacity: 0; pointer-events: none; transition: .18s; z-index: 50; }
+.toast.on { opacity: 1; transform: translate(-50%, 0); }
+
+@media (max-width: 860px) {
+  .layout { grid-template-columns: 1fr; }
+  #nav-toggle { display: inline-flex; }
+  .side { position: fixed; top: calc(var(--top) + env(safe-area-inset-top, 0px)); left: 0; bottom: 0; width: min(300px, 86vw); height: auto; z-index: 15; transform: translateX(-100%); transition: transform .2s; box-shadow: 0 10px 30px rgb(0 0 0 / .15); }
+  body.nav-open .side { transform: none; }
+  .search { max-width: none; }
+  .top .hide-sm { display: none; }
+  .pg { grid-template-columns: 1fr; }
+  .controls { border-left: 0; border-top: 1px solid var(--line); }
+  main { padding-top: 28px; }
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <button class="tbtn" id="nav-toggle" aria-label="Open navigation" aria-expanded="false"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+  <a class="brand" href="#overview"><span class="mark" id="brand-mark"></span><span id="brand-name"></span><small class="hide-sm">Design System</small></a>
+  <div class="search"><input id="search" type="search" placeholder="Search" aria-label="Search components" autocomplete="off"><kbd>/</kbd></div>
+  <button class="tbtn" id="theme" aria-label="Toggle theme"></button>
+  <a class="tbtn hide-sm" id="figma-link" target="_blank" rel="noopener">Figma ↗</a>
+</header>
+<div class="layout">
+  <aside class="side"><nav id="nav" aria-label="Design system"></nav></aside>
+  <main id="main" tabindex="-1"></main>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* =====================================================================
+   BRAND + TOKENS. Replace everything in this block for a new brand.
+   The values below are neutral placeholders, not a brand.
+   ===================================================================== */
+window.DS_BRAND = {
+  name: 'Brand',
+  initial: 'B',                      // shown in the top bar mark when no logo SVG is given
+  markBg: '#2c5fd9', markFg: '#ffffff',
+  font: "'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif",
+  mono: "'JetBrains Mono', ui-monospace, Menlo, monospace",
+  fontName: 'Inter',
+  fontNote: 'The product typeface is Inter, loaded from Google Fonts.',
+  iconLibrary: { name: 'Lucide', url: 'https://lucide.dev', note: '16px with a 2px stroke' },
+  customIconNote: '',                // e.g. "Product and feature icons are custom; see the Figma Icons page."
+  figmaUrl: '',                      // file URL; component pages append ?node-id=
+  logos: [],                         // [{ name, svg, bg }] bg is a semantic token name or hex
+};
+
+// Primitive ramps: family -> step -> hex. Steps can be any keys; keep them numeric and ordered.
+window.DS_PRIMITIVES = {
+  gray:   { label: 'Gray',   25:'#fcfcfd',50:'#f9fafb',100:'#f2f4f7',200:'#e4e7ec',300:'#d0d5dd',400:'#98a2b3',500:'#667085',600:'#475467',700:'#344054',800:'#1d2939',900:'#101828' },
+  accent: { label: 'Accent', 50:'#eff4ff',100:'#d1e0ff',200:'#b2ccff',300:'#84adff',400:'#528bff',500:'#2970ff',600:'#155eef',700:'#004eeb',800:'#0040c1',900:'#00359e' },
+  red:    { label: 'Red',    50:'#fef3f2',100:'#fee4e2',200:'#fecdca',300:'#fda29b',400:'#f97066',500:'#f04438',600:'#d92d20',700:'#b42318',800:'#912018',900:'#7a271a' },
+  green:  { label: 'Green',  50:'#ecfdf3',100:'#d1fadf',200:'#a6f4c5',300:'#6ce9a6',400:'#32d583',500:'#12b76a',600:'#039855',700:'#027a48',800:'#05603a',900:'#054f31' },
+  amber:  { label: 'Amber',  50:'#fffaeb',100:'#fef0c7',200:'#fedf89',300:'#fec84b',400:'#fdb022',500:'#f79009',600:'#dc6803',700:'#b54708',800:'#93370d',900:'#7a2e0e' },
+};
+
+// Semantic tokens: [name, reference ("family/step" | "white" | "black" | "#hex"), status?, note?]
+// status: 'new' | 'tbd' | 'deprecated'. CSS name = --ds- + name with "/" turned into "-".
+window.DS_SEMANTIC = [
+  ['bg/primary', 'white'],
+  ['bg/secondary', 'gray/50'],
+  ['bg/hover', 'gray/100'],
+  ['bg/selected', 'gray/200'],
+  ['bg/disabled', 'gray/100'],
+  ['bg/inverse', 'gray/900'],
+  ['bg/accent', 'accent/600'],
+  ['bg/accent-hover', 'accent/700', 'new'],
+  ['bg/accent-subtle', 'accent/50'],
+  ['bg/negative', 'red/50'],
+  ['bg/negative-strong', 'red/600'],
+  ['bg/positive', 'green/50'],
+  ['bg/warning', 'amber/50'],
+  ['bg/brand', 'accent/600', 'deprecated', 'Use bg/accent'],
+  ['text/primary', 'gray/900'],
+  ['text/secondary', 'gray/600'],
+  ['text/tertiary', 'gray/500'],
+  ['text/disabled', 'gray/400'],
+  ['text/inverse', 'white'],
+  ['text/accent', 'accent/700'],
+  ['text/negative', 'red/700'],
+  ['text/positive', 'green/700'],
+  ['text/warning', 'amber/700'],
+  ['border/default', 'gray/200'],
+  ['border/strong', 'gray/300'],
+  ['border/subtle', 'gray/100', 'tbd'],
+  ['border/focus', 'accent/500'],
+  ['border/negative', 'red/500'],
+];
+
+window.DS_SCALES = {
+  space: [0, 2, 4, 8, 12, 16, 20, 24, 32, 40, 48, 64],
+  radius: { none: 0, sm: 4, md: 8, lg: 12, xl: 16, full: 999 },
+  shadow: {
+    raised: '0 1px 2px rgb(16 24 40 / .08), 0 1px 3px rgb(16 24 40 / .06)',
+    overlay: '0 8px 24px rgb(16 24 40 / .12), 0 2px 6px rgb(16 24 40 / .06)',
+    modal: '0 20px 48px rgb(16 24 40 / .18)',
+  },
+  // [name, size px, line height px, weight]
+  type: [
+    ['caption', 12, 16, 400], ['body-sm', 14, 20, 400], ['body', 15, 22, 400], ['body-lg', 17, 26, 400],
+    ['heading-sm', 18, 24, 600], ['heading-md', 22, 28, 600], ['heading-lg', 28, 34, 600], ['display', 36, 42, 700],
+  ],
+};
+</script>
+
+<script>
+/* =====================================================================
+   COMPONENTS. One entry per component. Helpers first.
+   ===================================================================== */
+window.DS_ICONS = {
+  'search': '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+  'plus': '<path d="M5 12h14"/><path d="M12 5v14"/>',
+  'check': '<path d="M20 6 9 17l-5-5"/>',
+  'x': '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
+  'chevron-down': '<path d="m6 9 6 6 6-6"/>',
+  'chevron-left': '<path d="m15 18-6-6 6-6"/>',
+  'chevron-right': '<path d="m9 18 6-6-6-6"/>',
+  'arrow-right': '<path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>',
+  'info': '<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>',
+  'copy': '<rect width="14" height="14" x="8" y="8" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>',
+  'trash': '<path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>',
+  'settings': '<path d="M20 7h-9"/><path d="M14 17H5"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/>',
+};
+const DSH = {
+  esc: s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])),
+  low: s => String(s).toLowerCase(),
+  icon: (n, size = 16) => `<svg class="i" data-icon="${n}" viewBox="0 0 24 24" width="${size}" height="${size}" style="width:${size}px;height:${size}px" aria-hidden="true">${window.DS_ICONS[n] || ''}</svg>`,
+  uid: (() => { let n = 0; return p => `${p}-${++n}`; })(),
+  // Figma property rows for the Properties table
+  V: (n, ...v) => ({ n, t: 'Variant', v: `${v.join(', ')} (default ${v[0]})` }),
+  B: (n, d) => ({ n, t: 'Boolean', v: `default ${d}` }),
+  T: (n, d) => ({ n, t: 'Text', v: `default “${d}”` }),
+  S: (n, d) => ({ n, t: 'Instance swap', v: `default ${d}` }),
+  // Playground controls. The first option of a select is its default unless d is given.
+  sel: (k, label, o, d) => ({ k, label, t: 'select', o, d: d ?? o[0] }),
+  txt: (k, label, d = '') => ({ k, label, t: 'text', d }),
+  bool: (k, label, d = false) => ({ k, label, t: 'bool', d }),
+  // React snippet builder: jsx('Button', { variant: 'primary', disabled: true }, 'Save')
+  jsx(name, props = {}, children) {
+    const a = Object.entries(props).filter(([, v]) => v !== '' && v !== false && v != null)
+      .map(([k, v]) => v === true ? k : typeof v === 'string' ? `${k}="${v}"` : `${k}={${JSON.stringify(v)}}`);
+    const multi = a.length > 3;
+    const open = multi ? `<${name}\n  ${a.join('\n  ')}\n` : `<${name}${a.length ? ' ' + a.join(' ') : ''}`;
+    if (children == null || children === '') return open + (multi ? '/>' : ' />');
+    return `${open}>${children}</${name}>`;
+  },
+};
+
+function btnHTML(p, extra = '') {
+  const { esc, low, icon } = DSH; const s = p.size === 'S' ? 14 : 16;
+  const cls = `ds-btn ds-btn--${low(p.type)} ds-btn--${low(p.size)}${p.state === 'Hover' ? ' is-hover' : ''}${extra}`;
+  return `<button class="${cls}"${p.state === 'Disabled' ? ' disabled' : ''}${p.aria ? ` aria-label="${esc(p.aria)}"` : ''}>${p.left ? icon(p.leftIcon || 'plus', s) : ''}${p.label ? `<span>${esc(p.label)}</span>` : ''}${p.right ? icon('chevron-down', s) : ''}</button>`;
+}
+function fieldHTML(p) {
+  const { esc, uid } = DSH; const id = uid('field'); const err = p.state === 'Error';
+  const help = err ? p.error : p.helper;
+  return `<div class="ds-field${err ? ' is-error' : ''}${p.state === 'Focus' ? ' is-focus' : ''}"><label class="ds-field__label" for="${id}">${esc(p.label)}</label><input id="${id}" class="ds-field__input" type="text" placeholder="${esc(p.placeholder)}" value="${esc(p.value)}"${p.state === 'Disabled' ? ' disabled' : ''}${err ? ' aria-invalid="true"' : ''}${help ? ` aria-describedby="${id}-help"` : ''}>${help ? `<p class="ds-field__help" id="${id}-help">${esc(help)}</p>` : ''}</div>`;
+}
+function switchHTML(p) {
+  const { esc } = DSH;
+  return `<label class="ds-switch${p.state === 'Hover' ? ' is-hover' : ''}"><input type="checkbox" role="switch"${p.on ? ' checked' : ''}${p.state === 'Disabled' ? ' disabled' : ''}><span class="ds-switch__track"><span class="ds-switch__thumb"></span></span>${p.label ? `<span>${esc(p.label)}</span>` : ''}</label>`;
+}
+
+// Sidebar groups, in display order. Only groups with components appear.
+window.DS_GROUPS = [
+  { id: 'actions', name: 'Actions' },
+  { id: 'form', name: 'Form' },
+  { id: 'navigation', name: 'Navigation' },
+  { id: 'feedback', name: 'Feedback' },
+  { id: 'overlays', name: 'Overlays' },
+  { id: 'data', name: 'Data display' },
+];
+
+window.DS_COMPONENTS = [
+{ id: 'button', name: 'Button', group: 'actions', page: 'Buttons', node: '', variants: 36,
+  desc: 'The main action control. Four types share one contract of size and state; label and icons are optional.',
+  usage: { do: ['Use one Primary button per view for the main action.', 'Use Destructive only for actions that remove data, and confirm them.'], dont: ['Don’t use Tertiary for the only action on a page.', 'Don’t write labels longer than three words.'] },
+  props: [DSH.V('Type', 'Primary', 'Secondary', 'Tertiary', 'Destructive'), DSH.V('Size', 'M', 'S', 'L'), DSH.V('State', 'Default', 'Hover', 'Disabled'), DSH.T('Label', 'Button'), DSH.B('Left icon?', false), DSH.B('Right icon?', false)],
+  live: {
+    controls: [DSH.sel('type', 'Type', ['Primary', 'Secondary', 'Tertiary', 'Destructive']), DSH.sel('size', 'Size', ['M', 'S', 'L']), DSH.sel('state', 'State', ['Default', 'Hover', 'Disabled']), DSH.txt('label', 'Label', 'Button'), DSH.bool('left', 'Left icon'), DSH.bool('right', 'Right icon')],
+    render: p => btnHTML(p),
+    jsx: p => DSH.jsx('Button', { variant: DSH.low(p.type), size: DSH.low(p.size), disabled: p.state === 'Disabled', iconLeft: p.left ? 'plus' : '', iconRight: p.right ? 'chevron-down' : '' }, DSH.esc(p.label)),
+    gallery: () => ['Primary', 'Secondary', 'Tertiary', 'Destructive'].map(t => btnHTML({ type: t, size: 'M', state: 'Default', label: t })).join('')
+      + btnHTML({ type: 'Primary', size: 'M', state: 'Disabled', label: 'Disabled' }) },
+  anatomy: [['Container S · M · L', 'height', '28 · 36 · 44px'], ['Container', 'radius', 'radius-md (S uses radius-sm)'], ['Gap', 'label to icon', 'space-8'], ['Primary', 'fill · label', 'bg/accent · text/inverse'], ['Primary hover', 'fill', 'bg/accent-hover'], ['Secondary', 'fill · border', 'bg/primary · border/strong'], ['Destructive', 'fill', 'bg/negative-strong'], ['Disabled', 'fill · label', 'bg/disabled · text/disabled'], ['Focus', 'outline', 'border/focus 2px, offset 2px']] },
+
+{ id: 'button-icon', name: 'Icon button', group: 'actions', page: 'Buttons', node: '', variants: 36, status: 'new',
+  desc: 'An icon-only Button with the same Type and Size contract. Always give it an accessible label.',
+  props: [DSH.V('Type', 'Primary', 'Secondary', 'Tertiary', 'Destructive'), DSH.V('Size', 'M', 'S', 'L'), DSH.V('State', 'Default', 'Hover', 'Disabled'), DSH.S('Icon', 'settings')],
+  live: {
+    controls: [DSH.sel('type', 'Type', ['Secondary', 'Primary', 'Tertiary', 'Destructive']), DSH.sel('size', 'Size', ['M', 'S', 'L']), DSH.sel('state', 'State', ['Default', 'Hover', 'Disabled']), DSH.sel('icon', 'Icon', ['settings', 'search', 'plus', 'trash'])],
+    render: p => btnHTML({ ...p, left: true, leftIcon: p.icon, aria: p.icon }, ' ds-btn--icon'),
+    jsx: p => DSH.jsx('IconButton', { variant: DSH.low(p.type), size: DSH.low(p.size), icon: p.icon, 'aria-label': p.icon, disabled: p.state === 'Disabled' }) },
+  anatomy: [['Container', 'size', '28 · 36 · 44px square'], ['Icon', 'size', '14px S, 16px M and L'], ['Colors', 'all types', 'Same as Button']] },
+
+{ id: 'text-field', name: 'Text field', group: 'form', page: 'Inputs', node: '', variants: 4,
+  desc: 'Single line text input with a label and optional helper text. Error replaces the helper with the error message.',
+  usage: { do: ['Always show a visible label.', 'Write errors that say how to fix the problem.'], dont: ['Don’t use placeholder text as the label.'] },
+  props: [DSH.V('State', 'Default', 'Focus', 'Error', 'Disabled'), DSH.T('Label', 'Email'), DSH.T('Placeholder', 'name@company.com'), DSH.B('Helper?', true)],
+  live: {
+    controls: [DSH.sel('state', 'State', ['Default', 'Focus', 'Error', 'Disabled']), DSH.txt('label', 'Label', 'Email'), DSH.txt('placeholder', 'Placeholder', 'name@company.com'), DSH.txt('value', 'Value', ''), DSH.txt('helper', 'Helper', 'We’ll only use this for receipts.'), DSH.txt('error', 'Error message', 'Enter an email like name@company.com')],
+    render: p => fieldHTML(p),
+    jsx: p => DSH.jsx('TextField', { label: p.label, placeholder: p.placeholder, value: p.value, helper: p.state === 'Error' ? '' : p.helper, error: p.state === 'Error' ? p.error : '', disabled: p.state === 'Disabled' }),
+    gallery: () => ['Default', 'Focus', 'Error', 'Disabled'].map(s => fieldHTML({ state: s, label: s, placeholder: 'Placeholder', value: '', helper: 'Helper text', error: 'Error message' })).join('') },
+  anatomy: [['Label', 'type · color', 'type-body-sm 500 · text/primary'], ['Input', 'height · padding · radius', '36px · space-12 · radius-md'], ['Input', 'border', 'border/strong'], ['Focus', 'border · ring', 'border/focus · 3px bg/accent-subtle'], ['Error', 'border · helper', 'border/negative · text/negative'], ['Helper', 'type · color', 'type-caption · text/secondary']] },
+
+{ id: 'switch', name: 'Switch', group: 'form', page: 'Toggles', node: '', variants: 6,
+  desc: 'Turns a single setting on or off with immediate effect. Use a checkbox when the change needs a Save.',
+  props: [DSH.B('On?', false), DSH.V('State', 'Default', 'Hover', 'Disabled'), DSH.T('Label', 'Email notifications')],
+  live: {
+    controls: [DSH.bool('on', 'On', true), DSH.sel('state', 'State', ['Default', 'Hover', 'Disabled']), DSH.txt('label', 'Label', 'Email notifications')],
+    render: p => switchHTML(p),
+    jsx: p => DSH.jsx('Switch', { checked: p.on, disabled: p.state === 'Disabled', label: p.label }),
+    gallery: () => [false, true].flatMap(on => ['Default', 'Disabled'].map(s => switchHTML({ on, state: s, label: `${on ? 'On' : 'Off'}, ${s.toLowerCase()}` }))).join('') },
+  anatomy: [['Track', 'size · radius', '32 × 18px · radius-full'], ['Track off · on', 'fill', 'border/strong · bg/accent'], ['Thumb', 'size · fill · shadow', '14px · bg/primary · shadow-raised'], ['Label', 'type', 'type-body-sm']] },
+];
+</script>
+
+<script>
+/* =====================================================================
+   ENGINE. Brand independent. Edit only to add page types or features.
+   ===================================================================== */
+(() => {
+const BR = window.DS_BRAND, P = window.DS_PRIMITIVES, SEM = window.DS_SEMANTIC, SC = window.DS_SCALES;
+const GROUPS = window.DS_GROUPS, COMPS = window.DS_COMPONENTS, ICONS = window.DS_ICONS;
+const { esc } = DSH;
+const $ = s => document.querySelector(s);
+
+/* ---------- Tokens ---------- */
+const semVar = n => '--ds-' + n.replace(/[\/\s]+/g, '-').toLowerCase();
+const primVar = (f, s) => '--ds-' + f.replace(/\s+/g, '-') + '-' + s;
+const refHex = r => r === 'white' ? '#ffffff' : r === 'black' ? '#000000' : r.startsWith('#') ? r : (P[r.split('/')[0]] || {})[r.split('/')[1]] || r;
+const refCSS = r => r === 'white' ? '#ffffff' : r === 'black' ? '#000000' : r.startsWith('#') ? r : `var(${primVar(...r.split('/'))})`;
+function buildCSS() {
+  const L = [':root {', `  --ds-font: ${BR.font};`, `  --ds-mono: ${BR.mono};`];
+  for (const [f, ramp] of Object.entries(P)) for (const [k, v] of Object.entries(ramp)) if (k !== 'label') L.push(`  ${primVar(f, k)}: ${v};`);
+  for (const [n, r] of SEM) L.push(`  ${semVar(n)}: ${refCSS(r)};`);
+  SC.space.forEach(v => L.push(`  --ds-space-${v}: ${v}px;`));
+  for (const [k, v] of Object.entries(SC.radius)) L.push(`  --ds-radius-${k}: ${v}px;`);
+  for (const [k, v] of Object.entries(SC.shadow)) L.push(`  --ds-shadow-${k}: ${v};`);
+  SC.type.forEach(([n, s, lh, w]) => L.push(`  --ds-type-${n}: ${w} ${s}px/${lh}px var(--ds-font);`));
+  L.push('}'); return L.join('\n');
+}
+function buildJSON() {
+  const o = { color: {}, semantic: {}, space: {}, radius: {}, shadow: {}, typography: {} };
+  for (const [f, ramp] of Object.entries(P)) { o.color[f] = {}; for (const [k, v] of Object.entries(ramp)) if (k !== 'label') o.color[f][k] = { $value: v, $type: 'color' }; }
+  for (const [n, r, st, note] of SEM) o.semantic[n] = { $value: r.includes('/') ? `{color.${r.replace('/', '.')}}` : refHex(r), $type: 'color', ...(st ? { $extensions: { status: st, ...(note ? { note } : {}) } } : {}) };
+  SC.space.forEach(v => o.space[v] = { $value: `${v}px`, $type: 'dimension' });
+  for (const [k, v] of Object.entries(SC.radius)) o.radius[k] = { $value: `${v}px`, $type: 'dimension' };
+  for (const [k, v] of Object.entries(SC.shadow)) o.shadow[k] = { $value: v, $type: 'shadow' };
+  SC.type.forEach(([n, s, lh, w]) => o.typography[n] = { $value: { fontFamily: BR.fontName, fontSize: `${s}px`, lineHeight: `${lh}px`, fontWeight: w }, $type: 'typography' });
+  return JSON.stringify(o, null, 2);
+}
+const TOKENS_CSS = buildCSS();
+$('#ds-tokens').textContent = TOKENS_CSS;
+
+/* ---------- Helpers ---------- */
+const badge = s => `<span class="badge b-${esc(s)}">${{ new: 'New', tbd: 'TBD', beta: 'Beta', deprecated: 'Deprecated' }[s] || esc(s)}</span>`;
+const SEM_NAMES = SEM.map(s => s[0]).sort((a, b) => b.length - a.length);
+function tokenize(v) {
+  let out = esc(v);
+  const re = new RegExp(`(?<![\\w/-])(${SEM_NAMES.map(n => n.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&')).join('|')})(?![\\w/-])|\\b((?:radius|space|shadow|type)-[\\w-]+)`, 'g');
+  return out.replace(re, (m, sem, scale) => sem ? `<code class="tok"><i style="background:var(${semVar(sem)})"></i>${sem}</code>` : `<code class="tok">${scale}</code>`);
+}
+function hl(code) {
+  const re = /(<!--[\s\S]*?-->|\/\*[\s\S]*?\*\/)|("(?:[^"\\]|\\.)*")|(<\/?[\w.:-]+|\/?>)|([\w:@-]+)(?==)|(--[\w-]+)(?=\s*:)/g;
+  let out = '', i = 0, m;
+  while ((m = re.exec(code))) {
+    out += esc(code.slice(i, m.index));
+    const cls = m[1] ? 't-com' : m[2] ? 't-str' : m[3] ? 't-tag' : 't-attr';
+    out += `<span class="${cls}">${esc(m[0])}</span>`; i = re.lastIndex;
+  }
+  return out + esc(code.slice(i));
+}
+function fmtHTML(html) {
+  html = html.replace(/<svg[^>]*data-icon="([^"]+)"[\s\S]*?<\/svg>/g, '<!-- icon: $1 -->');
+  const toks = html.split(/(<[^>]+>)/).map(s => s.trim()).filter(Boolean);
+  const voids = /^<(input|img|br|hr|meta|link|source)\b/i; const lines = []; let d = 0;
+  for (const t of toks) {
+    if (t.startsWith('</')) { d = Math.max(0, d - 1); lines.push([d, t, 'close']); }
+    else if (t.startsWith('<!--') || voids.test(t) || t.endsWith('/>')) lines.push([d, t, 'void']);
+    else if (t.startsWith('<')) { lines.push([d, t, 'open']); d++; }
+    else lines.push([d, t, 'text']);
+  }
+  const out = [];
+  for (let i = 0; i < lines.length; i++) {
+    const a = lines[i], b = lines[i + 1], c = lines[i + 2];
+    if (a[2] === 'open' && b && c && b[2] === 'text' && c[2] === 'close') { out.push('  '.repeat(a[0]) + a[1] + b[1] + c[1]); i += 2; }
+    else if (a[2] === 'open' && b && b[2] === 'close') { out.push('  '.repeat(a[0]) + a[1] + b[1]); i += 1; }
+    else out.push('  '.repeat(a[0]) + a[1]);
+  }
+  return out.join('\n');
+}
+let toastT;
+function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('on'), 1400); }
+async function copy(text, label = 'Copied') {
+  try { await navigator.clipboard.writeText(text); }
+  catch { const ta = document.createElement('textarea'); ta.value = text; document.body.append(ta); ta.select(); try { document.execCommand('copy'); } catch {} ta.remove(); }
+  toast(label);
+}
+const figmaLink = node => BR.figmaUrl && node ? `${BR.figmaUrl}${BR.figmaUrl.includes('?') ? '&' : '?'}node-id=${encodeURIComponent(node.replace(':', '-'))}` : '';
+
+/* ---------- Pages ---------- */
+const FOUNDATIONS = [['overview', 'Overview'], ['colors', 'Colors'], ['typography', 'Typography'], ['spacing', 'Spacing, radius & elevation'], ['icons', 'Icons'], ['logos', 'Logos'], ['tokens', 'Tokens for code']];
+const visibleGroups = () => GROUPS.filter(g => COMPS.some(c => c.group === g.id));
+const ORDER = [...FOUNDATIONS.map(([id, name]) => ({ id, name })), ...visibleGroups().flatMap(g => COMPS.filter(c => c.group === g.id).map(c => ({ id: c.id, name: c.name })))];
+const hrefOf = id => '#' + id;
+
+const PAGES = {
+  overview: () => `<header class="page-head"><h1>${esc(BR.name)} components for developers</h1><p class="lede">Tokens, foundations and every component with live states, Figma properties and code you can copy.</p></header>
+    <section class="sec"><h2>Start here</h2><ol class="steps">
+      <li><strong>Add the tokens.</strong> Copy the CSS custom properties from <a href="#tokens">Tokens for code</a>. Semantic tokens point at primitives, so a palette change only touches one place.</li>
+      <li><strong>Match the Figma contract.</strong> Component props use the same names and values as the Figma properties, so a design spec maps one to one to code.</li>
+      <li><strong>Check states.</strong> Step through every state in the Controls panel before you ship, and compare with the Figma reference on each page.</li></ol></section>
+    <section class="sec"><h2>Browse</h2><div class="grid-links">
+      <a href="#colors"><strong>Foundations</strong><span>Colors, type, spacing, icons, logos, tokens</span></a>
+      ${visibleGroups().map(g => { const l = COMPS.filter(c => c.group === g.id); return `<a href="${hrefOf(l[0].id)}"><strong>${esc(g.name)}</strong><span>${l.length} component${l.length === 1 ? '' : 's'}: ${l.slice(0, 3).map(c => esc(c.name)).join(', ')}${l.length > 3 ? '…' : ''}</span></a>`; }).join('')}
+    </div></section>
+    <section class="sec"><h2>Good to know</h2><ul class="notes">
+      <li><strong>Font.</strong> ${esc(BR.fontNote)}</li>
+      <li><strong>Icons</strong> come from <a href="${esc(BR.iconLibrary.url)}" target="_blank" rel="noopener">${esc(BR.iconLibrary.name)}</a> at ${esc(BR.iconLibrary.note)}.${BR.customIconNote ? ' ' + esc(BR.customIconNote) : ''}</li>
+      <li><strong>Token status.</strong> Badges mark tokens and components that are ${badge('new')} ${badge('tbd')} or ${badge('deprecated')}. Deprecated tokens list their replacement.</li>
+      <li><strong>Previews</strong> sit on a light canvas in both site themes, so colors match the product exactly.</li></ul></section>`,
+
+  colors: () => {
+    const groups = {}; SEM.forEach(s => (groups[s[0].split('/')[0]] ||= []).push(s));
+    return `<header class="page-head"><p class="eyebrow">Foundations</p><h1>Colors</h1><p class="lede">Use semantic tokens in components. Primitives exist so semantic tokens have something to point at.</p></header>
+    <section class="sec"><h2>Semantic tokens</h2>${Object.entries(groups).map(([g, list]) => `<h3 class="sub">${esc(g)}</h3><div class="tbl-wrap"><table class="tbl"><thead><tr><th style="width:52px"></th><th>Token</th><th>CSS</th><th>Points to</th></tr></thead><tbody>${list.map(([n, r, st, note]) => `<tr><td><span class="sw" style="background:var(${semVar(n)})"></span></td><td><code>${esc(n)}</code> ${st ? badge(st) : ''}${note ? `<div class="muted" style="font-size:13px">${esc(note)}</div>` : ''}</td><td><code>${semVar(n)}</code></td><td><code>${esc(r)}</code> <span class="muted" style="font-size:12px">${esc(refHex(r))}</span></td></tr>`).join('')}</tbody></table></div>`).join('')}</section>
+    <section class="sec"><h2>Primitive ramps</h2><p class="muted">Click a step to copy its hex.</p>${Object.entries(P).map(([f, ramp]) => { const steps = Object.entries(ramp).filter(([k]) => k !== 'label'); return `<div class="ramp-h"><span>${esc(ramp.label || f)}</span><code class="muted">${primVar(f, '*')}</code></div><div class="ramp">${steps.map(([k, v]) => { const dark = parseInt(k) >= 500; return `<button style="background:${v};color:${dark ? '#fff' : '#111'}" data-copy="${v}" aria-label="Copy ${esc(f)} ${k} ${v}">${k}<br>${v}</button>`; }).join('')}</div>`; }).join('')}</section>`;
+  },
+
+  typography: () => `<header class="page-head"><p class="eyebrow">Foundations</p><h1>Typography</h1><p class="lede">${esc(BR.fontName)} across a single scale. Each step is one token holding size, line height and weight.</p></header>
+    <section class="sec"><div class="ds" style="font:400 72px/1 var(--ds-font)">Aa</div><p class="muted">${esc(BR.fontNote)}</p></section>
+    <section class="sec"><h2>Font-size scale</h2><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Token</th><th>Size / line</th><th>Weight</th><th>Sample</th></tr></thead><tbody>${SC.type.map(([n, s, lh, w]) => `<tr><td><code>--ds-type-${n}</code></td><td>${s} / ${lh}</td><td>${w}</td><td class="ds" style="font:var(--ds-type-${n})">The quick brown fox</td></tr>`).join('')}</tbody></table></div></section>
+    <section class="sec"><h2>CSS</h2><div class="code-wrap" style="border-top:1px solid var(--line);border-radius:12px"><pre class="code"><code>${hl(`.title { font: var(--ds-type-heading-md); }\n.body  { font: var(--ds-type-body); color: var(--ds-text-secondary); }`)}</code></pre></div></section>`,
+
+  spacing: () => `<header class="page-head"><p class="eyebrow">Foundations</p><h1>Spacing, radius &amp; elevation</h1></header>
+    <section class="sec"><h2>Spacing</h2>${SC.space.map(v => `<div class="scale-row"><code>--ds-space-${v}</code><div class="bar" style="width:${Math.max(v, 1)}px" title="${v}px"></div></div>`).join('')}</section>
+    <section class="sec"><h2>Radius</h2><div class="tiles">${Object.entries(SC.radius).map(([k, v]) => `<div class="tile" style="border-radius:${Math.min(v, 44)}px">radius-${k}<br>${v}px</div>`).join('')}</div></section>
+    <section class="sec"><h2>Elevation</h2><div class="tiles">${Object.keys(SC.shadow).map(k => `<div class="tile" style="border:0;border-radius:10px;box-shadow:var(--ds-shadow-${k})">shadow-${k}</div>`).join('')}</div></section>`,
+
+  icons: () => `<header class="page-head"><p class="eyebrow">Foundations</p><h1>Icons</h1><p class="lede">UI icons from ${esc(BR.iconLibrary.name)}, ${esc(BR.iconLibrary.note)}. Click to copy the name.</p></header>
+    <section class="sec"><h2>${esc(BR.iconLibrary.name)} icons used in components</h2><div class="icon-grid">${Object.keys(ICONS).map(n => `<button data-copy="${n}">${DSH.icon(n, 20)}<span>${n}</span></button>`).join('')}</div></section>
+    ${BR.customIconNote ? `<section class="sec"><h2>Custom sets</h2><p>${esc(BR.customIconNote)}</p></section>` : ''}`,
+
+  logos: () => {
+    const logos = BR.logos.length ? BR.logos : [
+      { name: 'Mark on light', bg: 'bg/primary', svg: null, fg: BR.markBg },
+      { name: 'Mark on dark', bg: 'bg/inverse', svg: null, fg: '#ffffff' },
+      { name: 'Mark on accent', bg: 'bg/accent', svg: null, fg: '#ffffff' }];
+    const bgOf = b => b.startsWith('#') ? b : `var(${semVar(b)})`;
+    const ph = l => `<span style="display:grid;place-items:center;width:64px;height:64px;border-radius:16px;border:2px solid ${l.fg};color:${l.fg};font:700 30px var(--ds-font)">${esc(BR.initial)}</span>`;
+    return `<header class="page-head"><p class="eyebrow">Foundations</p><h1>Logos</h1>${BR.logos.length ? '' : '<p class="lede">Placeholder marks. Replace with the brand’s logo SVGs in DS_BRAND.logos.</p>'}</header>
+    <section class="sec"><div class="logo-grid">${logos.map(l => `<figure><div class="lg" style="background:${bgOf(l.bg)}">${l.svg || ph(l)}</div><figcaption>${esc(l.name)}</figcaption></figure>`).join('')}</div></section>`;
+  },
+
+  tokens: () => `<header class="page-head"><p class="eyebrow">Foundations</p><h1>Tokens for code</h1><p class="lede">Paste the CSS into your global stylesheet. JSON follows the W3C design tokens format for Style Dictionary and similar tools.</p></header>
+    <section class="sec"><div class="code-wrap" style="border-top:1px solid var(--line);border-radius:12px"><div class="tabs" role="tablist"><button role="tab" data-tok="css" aria-selected="true">CSS</button><button role="tab" data-tok="json" aria-selected="false">JSON</button><button role="tab" data-tok="comp" aria-selected="false">Component CSS</button><span class="spacer"></span><button id="copy-tok">Copy</button></div><pre class="code" style="max-height:640px"><code id="tok-code"></code></pre></div></section>`,
+};
+
+/* ---------- Component page ---------- */
+const STATE = {};
+let codeMode = 'jsx';
+function control(c, k, val) {
+  const id = `ctl-${c.id}-${k.k}`;
+  if (k.t === 'select') return `<label for="${id}">${esc(k.label)}</label><select id="${id}" data-k="${k.k}">${k.o.map(o => `<option${o === val ? ' selected' : ''}>${esc(o)}</option>`).join('')}</select>`;
+  if (k.t === 'bool') return `<label class="ctl-bool" for="${id}"><input type="checkbox" id="${id}" data-k="${k.k}"${val ? ' checked' : ''}><span>${esc(k.label)}</span></label>`;
+  return `<label for="${id}">${esc(k.label)}</label><input type="text" id="${id}" data-k="${k.k}" value="${esc(val)}">`;
+}
+function compPage(c) {
+  const g = GROUPS.find(x => x.id === c.group) || { name: '' };
+  const st = STATE[c.id] ||= Object.fromEntries((c.live?.controls || []).map(k => [k.k, k.d]));
+  const fl = figmaLink(c.node);
+  let h = `<header class="page-head"><p class="eyebrow">${esc(g.name)}</p><h1>${esc(c.name)}${c.status ? ' ' + badge(c.status) : ''}</h1><p class="lede">${esc(c.desc)}</p>
+    <div class="meta">${c.variants ? `<span>${c.variants} variant${c.variants === 1 ? '' : 's'}</span>` : ''}${c.page ? `<span>Figma page: ${esc(c.page)}</span>` : ''}${fl ? `<a href="${fl}" target="_blank" rel="noopener">Open in Figma ↗</a>` : ''}</div></header>`;
+  if (c.live) h += `<section class="sec playground"><div class="pg"><div class="canvas"><div class="ds" id="canvas"></div></div>${c.live.controls.length ? `<form class="controls" id="controls" aria-label="Controls"><div class="ctl-h">Controls</div>${c.live.controls.map(k => control(c, k, st[k.k])).join('')}</form>` : ''}</div>
+    <div class="code-wrap"><div class="tabs" role="tablist"><button role="tab" data-code="jsx" aria-selected="${codeMode === 'jsx'}">React</button><button role="tab" data-code="html" aria-selected="${codeMode === 'html'}">HTML</button><span class="spacer"></span><button id="copy-code">Copy</button></div><pre class="code"><code id="code"></code></pre></div></section>`;
+  if (c.live?.gallery) h += `<section class="sec"><h2>All types</h2><div class="gallery ds">${c.live.gallery()}</div></section>`;
+  if (c.usage) h += `<section class="sec"><h2>Usage</h2><div class="usage">${c.usage.do ? `<div class="do"><h3>Do</h3><ul>${c.usage.do.map(u => `<li>${esc(u)}</li>`).join('')}</ul></div>` : ''}${c.usage.dont ? `<div class="dont"><h3>Don’t</h3><ul>${c.usage.dont.map(u => `<li>${esc(u)}</li>`).join('')}</ul></div>` : ''}</div></section>`;
+  if (c.props) h += `<section class="sec"><h2>Properties</h2><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Figma property</th><th>Kind</th><th>Values / default</th></tr></thead><tbody>${c.props.map(p => `<tr><td><code>${esc(p.n)}</code></td><td>${p.t}</td><td>${esc(p.v)}</td></tr>`).join('')}</tbody></table></div></section>`;
+  if (c.anatomy) h += `<section class="sec"><h2>Anatomy &amp; tokens</h2><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Part</th><th>Property</th><th>Value</th></tr></thead><tbody>${c.anatomy.map(([a, b, v]) => `<tr><td>${esc(a)}</td><td>${esc(b)}</td><td>${tokenize(v)}</td></tr>`).join('')}</tbody></table></div></section>`;
+  if (c.notes) h += `<section class="sec"><h2>Notes</h2><p>${esc(c.notes)}</p></section>`;
+  if (c.imgs?.length) h += `<section class="sec"><h2>Figma reference</h2><p class="muted">Every variant as drawn in Figma.</p><div class="fig-grid">${c.imgs.map(im => `<figure class="fig"><img src="${esc(im.src)}" alt="${esc(im.caption || c.name)} variants from Figma" loading="lazy"><figcaption><span>${esc(im.caption || c.name)}</span></figcaption></figure>`).join('')}</div></section>`;
+  return h + pager(c.id);
+}
+function refresh(c) {
+  const st = STATE[c.id]; const cv = $('#canvas'); if (!cv) return;
+  cv.innerHTML = c.live.render(st);
+  const code = codeMode === 'jsx' && c.live.jsx ? c.live.jsx(st) : fmtHTML(c.live.render(st));
+  $('#code').innerHTML = hl(code); $('#code').dataset.raw = code;
+}
+function pager(id) {
+  const i = ORDER.findIndex(x => x.id === id), p = ORDER[i - 1], n = ORDER[i + 1];
+  return `<nav class="pager" aria-label="Pages">${p ? `<a href="${hrefOf(p.id)}"><small>Previous</small>${esc(p.name)}</a>` : ''}${n ? `<a class="next" href="${hrefOf(n.id)}"><small>Next</small>${esc(n.name)}</a>` : ''}</nav>`;
+}
+
+/* ---------- Nav + routing ---------- */
+function renderNav(filter = '') {
+  const f = filter.trim().toLowerCase();
+  const item = (id, name, extra = '') => `<a href="${hrefOf(id)}" data-id="${id}">${esc(name)}${extra}</a>`;
+  let h = '';
+  const fi = FOUNDATIONS.filter(([, n]) => !f || n.toLowerCase().includes(f));
+  if (fi.length) h += `<div class="nav-group"><div class="nav-h">Foundations</div>${fi.map(([id, n]) => item(id, n)).join('')}</div>`;
+  visibleGroups().forEach(g => {
+    const list = COMPS.filter(c => c.group === g.id && (!f || c.name.toLowerCase().includes(f) || g.name.toLowerCase().includes(f) || (c.page || '').toLowerCase().includes(f)));
+    if (list.length) h += `<div class="nav-group"><div class="nav-h">${esc(g.name)}</div>${list.map(c => item(c.id, c.name, c.status ? badge(c.status) : '')).join('')}</div>`;
+  });
+  $('#nav').innerHTML = h || '<div class="nav-empty">No matches</div>';
+  markActive();
+}
+const currentId = () => decodeURIComponent(location.hash.slice(1)) || 'overview';
+function markActive() { const id = currentId(); document.querySelectorAll('#nav a').forEach(a => a.dataset.id === id ? a.setAttribute('aria-current', 'page') : a.removeAttribute('aria-current')); }
+let tokMode = 'css';
+function setTok(m) {
+  tokMode = m; const code = m === 'css' ? TOKENS_CSS : m === 'json' ? buildJSON() : $('#ds-comp').textContent.trim();
+  $('#tok-code').innerHTML = hl(code); $('#tok-code').dataset.raw = code;
+  document.querySelectorAll('[data-tok]').forEach(b => b.setAttribute('aria-selected', b.dataset.tok === m));
+}
+function route() {
+  const id = currentId(); const c = COMPS.find(x => x.id === id); const main = $('#main');
+  main.innerHTML = c ? compPage(c) : (PAGES[id] || PAGES.overview)();
+  document.title = `${c ? c.name : (FOUNDATIONS.find(f => f[0] === id) || ['', 'Overview'])[1]} · ${BR.name} Design System`;
+  if (c?.live) refresh(c);
+  if (id === 'tokens') setTok('css');
+  markActive(); setNav(false);
+  window.scrollTo(0, 0); main.focus({ preventScroll: true });
+}
+
+/* ---------- Theme ---------- */
+const SUN = '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2m-7.07-17.07 1.41 1.41m11.32 11.32 1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>';
+const MOON = '<svg viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>';
+const isDark = () => document.documentElement.dataset.theme ? document.documentElement.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+function paintTheme() { $('#theme').innerHTML = isDark() ? SUN : MOON; $('#theme').setAttribute('aria-label', isDark() ? 'Switch to light theme' : 'Switch to dark theme'); }
+try { const t = localStorage.getItem('ds-site-theme'); if (t) document.documentElement.dataset.theme = t; } catch {}
+
+/* ---------- Events ---------- */
+function setNav(open) { document.body.classList.toggle('nav-open', open); $('#nav-toggle').setAttribute('aria-expanded', open); }
+document.addEventListener('click', e => {
+  const t = e.target.closest('[data-copy],[data-code],[data-tok],#copy-code,#copy-tok,#theme,#nav-toggle');
+  if (!t) { if (document.body.classList.contains('nav-open') && !e.target.closest('.side')) setNav(false); return; }
+  if (t.dataset.copy) return copy(t.dataset.copy, `Copied ${t.dataset.copy}`);
+  if (t.dataset.code) { codeMode = t.dataset.code; document.querySelectorAll('[data-code]').forEach(b => b.setAttribute('aria-selected', b === t)); const c = COMPS.find(x => x.id === currentId()); if (c) refresh(c); return; }
+  if (t.dataset.tok) return setTok(t.dataset.tok);
+  if (t.id === 'copy-code') return copy($('#code').dataset.raw, 'Code copied');
+  if (t.id === 'copy-tok') return copy($('#tok-code').dataset.raw, 'Tokens copied');
+  if (t.id === 'theme') { const next = isDark() ? 'light' : 'dark'; document.documentElement.dataset.theme = next; try { localStorage.setItem('ds-site-theme', next); } catch {} paintTheme(); return; }
+  if (t.id === 'nav-toggle') { e.stopPropagation(); setNav(!document.body.classList.contains('nav-open')); }
+});
+document.addEventListener('input', e => {
+  const el = e.target; if (!el.closest('#controls')) return;
+  const c = COMPS.find(x => x.id === currentId()); if (!c) return;
+  STATE[c.id][el.dataset.k] = el.type === 'checkbox' ? el.checked : el.value; refresh(c);
+});
+$('#controls')?.addEventListener('submit', e => e.preventDefault());
+document.addEventListener('submit', e => e.preventDefault());
+$('#search').addEventListener('input', e => renderNav(e.target.value));
+$('#search').addEventListener('keydown', e => {
+  if (e.key === 'Enter') { const a = $('#nav a'); if (a) { location.hash = a.getAttribute('href'); e.target.blur(); } }
+  if (e.key === 'Escape') { e.target.value = ''; renderNav(); e.target.blur(); }
+});
+document.addEventListener('keydown', e => {
+  if (e.key === '/' && !/input|textarea|select/i.test(document.activeElement.tagName)) { e.preventDefault(); $('#search').focus(); }
+});
+matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change', paintTheme);
+window.addEventListener('hashchange', route);
+
+/* ---------- Boot ---------- */
+$('#brand-name').textContent = BR.name;
+const mk = $('#brand-mark'); mk.textContent = BR.initial; mk.style.background = BR.markBg; mk.style.color = BR.markFg;
+const fig = $('#figma-link'); if (BR.figmaUrl) fig.href = BR.figmaUrl; else fig.hidden = true;
+paintTheme(); renderNav(); route();
+})();
+</script>
+</body>
+</html>
