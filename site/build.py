@@ -2,7 +2,7 @@
 
 Inputs (all in this repo):
   data/tokens.json        token values, synced from the app repo (the only place they are edited)
-  data/DesignCatalog.kt   catalog source, for component state labels
+  data/*Catalog.kt       catalog sources, for component state labels
   data/shots/*.png        screenshots of the real Compose components, light, dark and private
   data/manifest.json      which app commit and CI run produced them
   site/*                  page template, brand copy, component docs, icons
@@ -48,7 +48,7 @@ NOTES = {
     'bg/error-container': 'Error banner',
     'bg/inverse': 'Snackbar',
     'bg/scrim-tile': 'Behind the close button on a tile',
-    'bg/private-marker': 'Private chip, same in every mode',
+    'bg/private-marker': 'Private marker color (the chip was removed in D14)',
     'text/primary': 'Body text and icons',
     'text/secondary': 'Hosts, supporting text, passive symbols',
     'text/disabled': 'Disabled text and icons',
@@ -60,7 +60,7 @@ NOTES = {
     'text/inverse': 'Snackbar message',
     'text/inverse-accent': 'Snackbar action (Undo)',
     'text/on-scrim': 'Close symbol on bg/scrim-tile',
-    'text/on-private-marker': 'Private chip label',
+    'text/on-private-marker': 'Private marker text (unused since D14)',
     'border/outline': 'Outlined button, field outlines',
     'border/outline-variant': 'Dividers, preview canvas dots',
     'border/selected': 'Selected tile border',
@@ -107,7 +107,7 @@ brand = brand.replace('__PRIMS__', json.dumps(prims, indent=1)).replace('__SEM__
 for k, v in scales.items(): brand = brand.replace(k, v)
 
 # Real component screenshots: labels from the catalog source, files from the screenshots branch.
-cat_src = open(os.path.join(DATA, 'DesignCatalog.kt')).read()
+cat_src = '\n'.join(open(os.path.join(DATA, f)).read() for f in sorted(os.listdir(DATA)) if f.endswith('Catalog.kt'))
 shots = {}
 manifest = {}
 if SHOTS:
@@ -116,7 +116,7 @@ if SHOTS:
     for m in re.finditer(r'CatalogEntry\("([a-z0-9-]+)", "([^"]+)", CatalogGroup\.(\w+), listOf\((.*?)\n        \)\),', cat_src, re.S):
         eid, body = m.group(1), m.group(4)
         states = []
-        for st in re.finditer(r'CatalogState\("([a-z0-9-]+)", "([^"]+)"', body):
+        for st in re.finditer(r'\b\w*State\(\s*"([a-z0-9-]+)",\s*"([^"]+)"', body):
             sid, label = st.group(1), st.group(2)
             per = {mode: f'shots/{eid}__{sid}__{mode}.png' for mode in MODES if f'{eid}__{sid}__{mode}.png' in files}
             if per: states.append({'id': sid, 'label': label, 'files': per})

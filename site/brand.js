@@ -78,7 +78,7 @@ window.DS_PHASES = [
   { n: 1, name: 'Foundations and atoms', status: 'Done (PR #17)', items: [
     'Tokens: color for normal light, normal dark and private; type; spacing; shape; elevation; motion; haptics.',
     '<code>:core:designsystem</code> module with <code>PangolinTheme</code>, <code>PangolinHaptics</code>, one copy of the Material Symbols drawables, and contrast unit tests for every text pair in all three modes.',
-    'Atoms: Icon, Icon button, Button, Letter badge, Private chip, Tab counter, Close button, New tab button, Progress line.',
+    'Atoms: Icon, Icon button, Button, Letter badge, Private chip (removed in D14), Tab counter, Close button, New tab button, Progress line.',
     'App wide theme swap to bronze and green teal. Screens keep their layouts.'] },
   { n: 2, name: 'Molecules', status: 'In review (PRs #27 to #29)', items: [
     'Segmented pill, Search field and incognito keyboard, List row and section label, Menu, Snackbar, Banner, Empty state, Blocked indicator, Choice row.',

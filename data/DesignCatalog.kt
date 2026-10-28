@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -29,6 +30,8 @@ import design.darrin.pangolin.core.designsystem.HapticMoment
 import design.darrin.pangolin.core.designsystem.PangolinShapes
 import design.darrin.pangolin.core.designsystem.PangolinSpacing
 import design.darrin.pangolin.core.designsystem.PangolinTheme
+import design.darrin.pangolin.core.designsystem.PangolinTiles
+import design.darrin.pangolin.core.designsystem.PangolinType
 import design.darrin.pangolin.core.designsystem.R
 import design.darrin.pangolin.core.designsystem.atoms.BadgeSize
 import design.darrin.pangolin.core.designsystem.atoms.ButtonSize
@@ -40,7 +43,6 @@ import design.darrin.pangolin.core.designsystem.atoms.PangolinButton
 import design.darrin.pangolin.core.designsystem.atoms.PangolinCloseButton
 import design.darrin.pangolin.core.designsystem.atoms.PangolinIconButton
 import design.darrin.pangolin.core.designsystem.atoms.PangolinIconToggle
-import design.darrin.pangolin.core.designsystem.atoms.PrivateChip
 import design.darrin.pangolin.core.designsystem.atoms.ProgressLine
 import design.darrin.pangolin.core.designsystem.atoms.SymbolIcon
 import design.darrin.pangolin.core.designsystem.atoms.SymbolSizeLarge
@@ -53,6 +55,7 @@ import design.darrin.pangolin.core.designsystem.molecules.BlockedKind
 import design.darrin.pangolin.core.designsystem.molecules.ChoiceControl
 import design.darrin.pangolin.core.designsystem.molecules.ChoiceRow
 import design.darrin.pangolin.core.designsystem.molecules.EmptyState
+import design.darrin.pangolin.core.designsystem.molecules.ListGroup
 import design.darrin.pangolin.core.designsystem.molecules.ListRowStyle
 import design.darrin.pangolin.core.designsystem.molecules.PangolinListRow
 import design.darrin.pangolin.core.designsystem.molecules.PangolinMenu
@@ -62,6 +65,11 @@ import design.darrin.pangolin.core.designsystem.molecules.SearchField
 import design.darrin.pangolin.core.designsystem.molecules.SectionLabel
 import design.darrin.pangolin.core.designsystem.molecules.SegmentedPill
 import design.darrin.pangolin.core.designsystem.molecules.StateAction
+import design.darrin.pangolin.core.designsystem.organisms.ChoiceOption
+import design.darrin.pangolin.core.designsystem.organisms.ChoiceSheet
+import design.darrin.pangolin.core.designsystem.organisms.ChoiceSheetContent
+import design.darrin.pangolin.core.designsystem.organisms.PangolinBottomSheetSurface
+import design.darrin.pangolin.core.designsystem.organisms.PangolinPreviewTile
 import design.darrin.pangolin.core.designsystem.rememberPangolinHaptics
 
 /**
@@ -73,7 +81,9 @@ import design.darrin.pangolin.core.designsystem.rememberPangolinHaptics
  * depends on time. Labels are developer facing and stay in English.
  */
 object DesignCatalog {
-    val entries: List<CatalogEntry> = listOf(
+    val entries: List<CatalogEntry> = baseEntries() + UnifiedBarCatalog.entries
+
+    private fun baseEntries(): List<CatalogEntry> = listOf(
         // ---------- Atoms ----------
         CatalogEntry("icon", "Icon", CatalogGroup.Atoms, listOf(
             CatalogState("set", "24dp set") {
@@ -84,6 +94,17 @@ object DesignCatalog {
                         R.drawable.ic_symbol_more_vert, R.drawable.ic_symbol_add, R.drawable.ic_symbol_close,
                         R.drawable.ic_symbol_lock, R.drawable.ic_symbol_search, R.drawable.ic_symbol_tab,
                         R.drawable.ic_symbol_history, R.drawable.ic_symbol_info, R.drawable.ic_symbol_error,
+                        // Unified address bar and its menus.
+                        R.drawable.ic_symbol_page_info, R.drawable.ic_symbol_share, R.drawable.ic_symbol_find_in_page,
+                        R.drawable.ic_symbol_text_decrease, R.drawable.ic_symbol_text_increase,
+                        R.drawable.ic_symbol_desktop_windows, R.drawable.ic_symbol_smartphone,
+                        R.drawable.ic_symbol_content_copy, R.drawable.ic_symbol_content_paste_go,
+                        R.drawable.ic_symbol_tab_close, R.drawable.ic_symbol_domino_mask,
+                        R.drawable.ic_symbol_bookmarks, R.drawable.ic_symbol_settings,
+                        // Find in page bar.
+                        R.drawable.ic_symbol_keyboard_arrow_up, R.drawable.ic_symbol_keyboard_arrow_down,
+                        // Link long press menu.
+                        R.drawable.ic_symbol_open_in_new, R.drawable.ic_symbol_tab_unselected,
                     ).forEach { SymbolIcon(it, tint = PangolinTheme.colors.textPrimary) }
                 }
             },
@@ -137,15 +158,13 @@ object DesignCatalog {
                 }
             },
         )),
-        CatalogEntry("private-chip", "Private chip", CatalogGroup.Atoms, listOf(
-            CatalogState("default", "Same colors in every mode") { PrivateChip() },
-        )),
         CatalogEntry("tab-counter", "Tab counter", CatalogGroup.Atoms, listOf(
-            CatalogState("counts", "3, 12, 140, private locked") {
+            CatalogState("counts", "3, 12, 140, private (2), private locked") {
                 Row {
                     TabCounter(3, onClick = {})
                     TabCounter(12, onClick = {})
                     TabCounter(140, onClick = {})
+                    TabCounter(2, onClick = {}, privateMode = true)
                     TabCounter(3, onClick = {}, locked = true)
                 }
             },
@@ -219,6 +238,19 @@ object DesignCatalog {
                     PangolinListRow(title = "Search engine", supporting = "DuckDuckGo", style = ListRowStyle.Plain, onClick = {})
                 }
             },
+            CatalogState("group", "Grouped in a tonal card (settings)") {
+                var previews by remember { mutableStateOf(true) }
+                Column {
+                    SectionLabel("General")
+                    ListGroup {
+                        PangolinListRow(title = "Search engine", supporting = "DuckDuckGo", style = ListRowStyle.Plain, onClick = {})
+                        ChoiceRow(
+                            "Show page previews in tabs", previews, { previews = it }, control = ChoiceControl.Switch,
+                            supporting = "Pictures of normal tabs in the tab grid",
+                        )
+                    }
+                }
+            },
         )),
         CatalogEntry("choice-row", "Choice row", CatalogGroup.Molecules, listOf(
             CatalogState("radio", "Radio") {
@@ -286,10 +318,117 @@ object DesignCatalog {
             },
         )),
         CatalogEntry("blocked-indicator", "Blocked indicator", CatalogGroup.Molecules, listOf(
-            CatalogState("kinds", "Beside the Private chip") {
+            CatalogState("kinds", "Each kind (the unified bar shows it inside the field at 20dp)") {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    PrivateChip(Modifier.padding(end = PangolinSpacing.Space4))
                     BlockedKind.entries.forEach { BlockedIndicator(it, onClick = {}) }
+                }
+            },
+        )),
+
+        // ---------- Organisms ----------
+        CatalogEntry("preview-tile", "Preview tile", CatalogGroup.Organisms, listOf(
+            CatalogState("two-columns", "2 columns: light site strip (selected), dark site strip") {
+                val light = remember { samplePicture(SamplePage.Light) }
+                val dark = remember { samplePicture(SamplePage.Dark) }
+                Row(horizontalArrangement = Arrangement.spacedBy(PangolinSpacing.Space16)) {
+                    PangolinPreviewTile(
+                        title = "Example Domain", host = "example.com", badge = badgeLetter("example.com"),
+                        preview = light, stripColor = SamplePage.Light.header, selected = true,
+                        onClick = {}, onClose = {}, modifier = Modifier.weight(1f),
+                    )
+                    PangolinPreviewTile(
+                        title = "Night reading list", host = "example.org", badge = badgeLetter("example.org"),
+                        preview = dark, stripColor = SamplePage.Dark.header, selected = false,
+                        onClick = {}, onClose = {}, modifier = Modifier.weight(1f),
+                    )
+                }
+            },
+            CatalogState("four-columns", "4 columns (inner screen): bright site strip, neutral strip") {
+                val bright = remember { samplePicture(SamplePage.Bright) }
+                val light = remember { samplePicture(SamplePage.Light) }
+                Row(horizontalArrangement = Arrangement.spacedBy(PangolinSpacing.Space12)) {
+                    PangolinPreviewTile(
+                        title = "Weekend recipes", host = "example.net", badge = badgeLetter("example.net"),
+                        preview = bright, stripColor = SamplePage.Bright.header, selected = false,
+                        onClick = {}, onClose = {}, compact = true, modifier = Modifier.width(170.dp),
+                    )
+                    PangolinPreviewTile(
+                        title = "Example Domain", host = "example.com", badge = badgeLetter("example.com"),
+                        preview = light, stripColor = null, selected = true,
+                        onClick = {}, onClose = {}, compact = true, modifier = Modifier.width(170.dp),
+                    )
+                }
+            },
+            CatalogState("placeholder", "No picture yet, blank new tab (selected)") {
+                Row(horizontalArrangement = Arrangement.spacedBy(PangolinSpacing.Space16)) {
+                    PangolinPreviewTile(
+                        title = "A page with no picture yet", host = "example.com", badge = badgeLetter("example.com"),
+                        preview = null, stripColor = null, selected = false,
+                        onClick = {}, onClose = {}, modifier = Modifier.weight(1f),
+                    )
+                    PangolinPreviewTile(
+                        title = "New tab", host = "", badge = badgeLetter("", "New tab"),
+                        preview = null, stripColor = null, selected = true,
+                        onClick = {}, onClose = {}, modifier = Modifier.weight(1f),
+                    )
+                }
+            },
+        )),
+        CatalogEntry("bottom-sheet", "Bottom sheet", CatalogGroup.Organisms, listOf(
+            CatalogState("choice", "Choice sheet (search engine), drawn in place") {
+                var picked by remember { mutableStateOf("DuckDuckGo") }
+                PangolinBottomSheetSurface(onHandleClick = {}) {
+                    ChoiceSheetContent(
+                        title = "Search engine",
+                        options = SampleEngines.map { ChoiceOption(it, it) },
+                        selected = picked,
+                        onSelect = { picked = it },
+                    )
+                }
+            },
+            CatalogState("choice-theme", "Choice sheet (theme), drawn in place") {
+                var picked by remember { mutableStateOf("System default") }
+                PangolinBottomSheetSurface(onHandleClick = {}) {
+                    ChoiceSheetContent(
+                        title = "Theme",
+                        options = listOf("System default", "Light", "Dark").map { ChoiceOption(it, it) },
+                        selected = picked,
+                        onSelect = { picked = it },
+                    )
+                }
+            },
+            CatalogState("text", "Text and an action (explainer sheet), drawn in place") {
+                PangolinBottomSheetSurface(onHandleClick = {}) {
+                    Column(
+                        modifier = Modifier.padding(
+                            start = PangolinSpacing.Space16,
+                            end = PangolinSpacing.Space16,
+                            bottom = PangolinSpacing.Space16,
+                        ),
+                        verticalArrangement = Arrangement.spacedBy(PangolinSpacing.Space12),
+                    ) {
+                        Text("Location blocked", style = PangolinType.titleLg, color = PangolinTheme.colors.textPrimary)
+                        Text(
+                            "Private mode blocks location for every site. Open in normal mode to allow.",
+                            style = PangolinType.bodyMd,
+                            color = PangolinTheme.colors.textSecondary,
+                        )
+                        PangolinButton("Got it", onClick = {}, variant = ButtonVariant.Text, modifier = Modifier.align(Alignment.End))
+                    }
+                }
+            },
+            CatalogState("live", "Tap to open (slides up, Back or a drag down closes)", screenshot = false) {
+                var open by remember { mutableStateOf(false) }
+                var picked by remember { mutableStateOf("DuckDuckGo") }
+                PangolinButton("Open sheet", onClick = { open = true }, variant = ButtonVariant.Outlined)
+                if (open) {
+                    ChoiceSheet(
+                        title = "Search engine",
+                        options = SampleEngines.map { ChoiceOption(it, it) },
+                        selected = picked,
+                        onSelect = { picked = it },
+                        onDismissRequest = { open = false },
+                    )
                 }
             },
         )),
@@ -309,7 +448,12 @@ object DesignCatalog {
     )
 }
 
-enum class CatalogGroup(val title: String) { Foundations("Foundations"), Atoms("Atoms"), Molecules("Molecules") }
+/** Sample choices for the sheet states. */
+private val SampleEngines = listOf("DuckDuckGo", "Google", "Bing", "Startpage")
+
+enum class CatalogGroup(val title: String) {
+    Foundations("Foundations"), Atoms("Atoms"), Molecules("Molecules"), Organisms("Organisms"),
+}
 
 data class CatalogEntry(val id: String, val name: String, val group: CatalogGroup, val states: List<CatalogState>)
 
@@ -331,7 +475,7 @@ private fun TileSurface(widthDp: Int, corner: androidx.compose.ui.graphics.Shape
     Box(
         modifier = Modifier
             .width(widthDp.dp)
-            .aspectRatio(0.8f)
+            .aspectRatio(PangolinTiles.CARD_ASPECT)
             .clip(corner)
             .background(PangolinTheme.colors.bgContainerHigh),
         contentAlignment = Alignment.TopEnd,
